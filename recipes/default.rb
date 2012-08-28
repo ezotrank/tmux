@@ -30,6 +30,7 @@ if node['platform'] == 'centos'
 
   if node['kernel']['machine'] == 'x86_64'
     package 'gcc'
+    package 'make'
   end
 
   bash 'install_tmux' do
