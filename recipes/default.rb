@@ -28,6 +28,10 @@ if node['platform'] == 'centos'
     notifies :run, 'bash[install_tmux]', :immediately
   end
 
+  if node['kernel']['machine'] == 'x86_64'
+    package 'gcc'
+  end
+
   bash 'install_tmux' do
     user 'root'
     cwd Chef::Config['file_cache_path']
