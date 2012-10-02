@@ -18,19 +18,16 @@
 
 if node['platform'] == 'centos'
   Chef::Log.info('There is not a tmux package for CentOS. Compiling from source...')
+  include_recipe "build-essential"
   package 'libevent-devel'
   package 'ncurses-devel'
-  if node['kernel']['machine'] == 'x86_64'
-    package 'gcc'
-    package 'make'
-  end
 
   tar_name = "tmux-#{node['tmux']['version']}"
   remote_file "#{Chef::Config['file_cache_path']}/#{tar_name}.tar.gz" do
     source "http://downloads.sourceforge.net/tmux/#{tar_name}.tar.gz"
     checksum node['tmux']['checksum']
     notifies :run, 'bash[install_tmux]', :immediately
-    not_if "which tmux"
+    not_if "test \"$(tmux -V|awk '{print $2}')\" = \"#{node['tmux']['version']}\""
   end
 
   bash 'install_tmux' do
@@ -38,10 +35,11 @@ if node['platform'] == 'centos'
     cwd Chef::Config['file_cache_path']
     code <<-EOH
       tar -zxf #{tar_name}.tar.gz
-      (cd #{tar_name} && ./configure && make && make install)
+      (cd #{tar_name} && ./configure -q && make -s && make install)
     EOH
-    action :nothing
+    not_if "test \"$(tmux -V|awk '{print $2}')\" = \"#{node['tmux']['version']}\""
   end
+
 else
   package 'tmux'
 end
