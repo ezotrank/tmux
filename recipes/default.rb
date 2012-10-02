@@ -37,7 +37,6 @@ if node['platform'] == 'centos'
       tar -zxf #{tar_name}.tar.gz
       (cd #{tar_name} && ./configure -q && make -s && make install)
     EOH
-    not_if "test \"$(tmux -V|awk '{print $2}')\" = \"#{node['tmux']['version']}\""
   end
 
 else
